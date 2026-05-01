@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Keuangan Pribadi</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- KEUANGAN (ringkasan) -->
+  <div class="wallet-card">
+    <div class="wallet-top">
+      <div class="wallet-left">
+        <div class="wallet-title">Keuangan</div>
+        <div class="wallet-balance">
+          <div class="wallet-balance-label">Total Saldo</div>
+          <div class="wallet-balance-row">
+            <div id="total" class="wallet-balance-amount">Rp 0</div>
+            <button id="editTotalBtn" class="edit-icon-btn" onclick="openEditTotalModal()">✏️</button>
+            <button id="historyBtn" class="history-icon-btn" onclick="openHistoryModal()">📋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wallet-bottom">
+      <div class="wallet-stats">
+        <div class="stat-item income">
+          <div class="stat-label">Pemasukan</div>
+          <div class="stat-value" id="statIncome">Rp 0</div>
+        </div>
+        <div class="stat-item expense">
+          <div class="stat-label">Pengeluaran</div>
+          <div class="stat-value" id="statExpense">Rp 0</div>
+        </div>
+        <div class="stat-item net">
+          <div class="stat-label">Total Saldo</div>
+          <div class="stat-value" id="statNet">Rp 0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST KATEGORI -->
+  <div id="categories" class="category-list"></div>
+
+  <!-- MODAL EDIT TOTAL SALDO -->
+  <div id="editTotalModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeEditTotalModal()"></div>
+    <div class="modal-content">
+      <h2>Edit Total Saldo</h2>
+      <div class="form-group">
+        <label for="editTotalInput">Jumlah Total (Rp)</label>
+        <input type="number" id="editTotalInput" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label for="editTotalNoteInput">Keterangan (opsional)</label>
+        <input type="text" id="editTotalNoteInput" placeholder="Catatan perubahan">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditTotalModal()">Batal</button>
+        <button class="btn-submit" onclick="submitEditTotal()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RIWAYAT TOTAL SALDO -->
+  <div id="historyModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeHistoryModal()"></div>
+    <div class="modal-content">
+      <h2>Riwayat Perubahan Saldo</h2>
+      <ul id="historyList" class="history-list"></ul>
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button class="btn-cancel" onclick="closeHistoryModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH KATEGORI -->
+  <div id="addCategoryModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeAddCategoryModal()"></div>
+    <div class="modal-content">
+      <h2>Tambah Kategori Baru</h2>
+      <div class="form-group">
+        <label for="categoryNameInput">Nama Kategori</label>
+        <input type="text" id="categoryNameInput" placeholder="Masukkan nama kategori...">
+      </div>
+      <div class="form-group">
+        <label for="categoryBalanceInput">Nominal Saldo</label>
+        <input type="number" id="categoryBalanceInput" placeholder="0" value="0">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAddCategoryModal()">Batal</button>
+        <button class="btn-submit" onclick="submitAddCategory()">Tambah</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PAGE -->
+  <div id="detailPage" class="detail hidden">
+    <div class="detail-header">
+      <button onclick="back()">⬅</button>
+      <h2 id="categoryTitle"></h2>
+      <div class="detail-header-actions">
+        <button class="detail-edit-btn" onclick="openEditNameModal()" title="Edit Nama">Edit Nama</button>
+        <button class="detail-edit-btn" onclick="openEditBalanceModal()" title="Edit Saldo">Edit Saldo</button>
+      </div>
+    </div>
+
+    <h3 id="categoryAmount"></h3>
+
+    <div class="input-group">
+      <input type="number" id="amountInput" placeholder="Jumlah">
+      <input type="text" id="noteInput" placeholder="Keterangan">
+    </div>
+
+    <div class="action-btns">
+      <button class="income" onclick="addIncome()">Pemasukan</button>
+      <button class="expense" onclick="addExpense()">Pengeluaran</button>
+    </div>
+
+    <ul id="history" class="history-list"></ul>
+  </div>
+
+  <!-- MODAL EDIT NAMA KATEGORI -->
+  <div id="editNameModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeEditNameModal()"></div>
+    <div class="modal-content">
+      <h2>Edit Nama Kategori</h2>
+      <div class="form-group">
+        <label for="editNameInput">Nama Kategori</label>
+        <input type="text" id="editNameInput" placeholder="Masukkan nama kategori...">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditNameModal()">Batal</button>
+        <button class="btn-submit" onclick="submitEditName()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT SALDO KATEGORI -->
+  <div id="editBalanceModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeEditBalanceModal()"></div>
+    <div class="modal-content">
+      <h2>Edit Saldo Kategori</h2>
+      <div class="form-group">
+        <label for="editBalanceInput">Nominal Saldo</label>
+        <input type="number" id="editBalanceInput" placeholder="0">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditBalanceModal()">Batal</button>
+        <button class="btn-submit" onclick="submitEditBalance()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
