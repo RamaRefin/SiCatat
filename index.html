@@ -7,6 +7,33 @@
 </head>
 <body>
 
+<header class="top-header" role="banner">
+  <div class="header-left">
+    <button id="hamburgerBtn" class="hamburger" aria-label="Buka menu" onclick="toggleSidebar()">☰</button>
+  </div>
+  <div class="header-center">
+    <img src="img/SiCatat.svg" alt="Logo" class="brand-logo">
+    <div class="brand-name">SiCatat</div>
+  </div>
+  <div class="header-right"></div>
+</header>
+
+<aside id="sidebar" class="sidebar hidden" aria-hidden="true">
+  <div class="sidebar-inner">
+    <button class="sidebar-close" aria-label="Tutup menu" onclick="toggleSidebar()">✕</button>
+    <nav class="sidebar-nav">
+      <a href="#" onclick="toggleSidebar(); switchMainPage('home'); return false;">🏠 Beranda</a>
+      <a href="#" onclick="toggleSidebar(); switchMainPage('recap'); return false;">🗓️ Rekap</a>
+      <a href="#" onclick="toggleSidebar(); switchMainPage('history'); return false;">📋 Riwayat</a>
+      <hr>
+      <a href="#" onclick="toggleSidebar(); alert('Login placeholder'); return false;">🔐 Login</a>
+      <a href="#" onclick="toggleSidebar(); alert('Pengaturan placeholder'); return false;">⚙️ Pengaturan</a>
+      <a href="#" onclick="toggleSidebar(); alert('Tentang: Aplikasi Catatan Uang'); return false;">ℹ️ Tentang</a>
+    </nav>
+  </div>
+</aside>
+<div id="sidebarOverlay" class="sidebar-overlay hidden" onclick="toggleSidebar()"></div>
+
 <div class="app">
 
   <div id="homePage" class="app-page">

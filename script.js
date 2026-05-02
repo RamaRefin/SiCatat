@@ -1,8 +1,8 @@
 let data = JSON.parse(localStorage.getItem("keuangan")) || {
-  makan: { name: "Dana Makan", saldo: 900000, history: [] },
-  bensin: { name: "Dana Bensin", saldo: 500000, history: [] },
-  jajan: { name: "Dana Jajan", saldo: 300000, history: [] },
-  darurat: { name: "Dana Darurat", saldo: 1000000, history: [] }
+  makan: { name: "Dana Makan", saldo: 0, history: [] },
+  bensin: { name: "Dana Bensin", saldo: 0, history: [] },
+  jajan: { name: "Dana Jajan", saldo: 0, history: [] },
+  darurat: { name: "Dana Darurat", saldo: 0, history: [] }
 };
 
 let currentCategory = null;
@@ -768,6 +768,39 @@ function deleteCategoryFromHome(key, event) {
     render();
   }
 }
+
+// Sidebar controls (header hamburger)
+function openSidebar() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sb || !overlay) return;
+  sb.classList.remove('hidden');
+  overlay.classList.remove('hidden');
+  sb.setAttribute('aria-hidden', 'false');
+}
+
+function closeSidebar() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sb || !overlay) return;
+  sb.classList.add('hidden');
+  overlay.classList.add('hidden');
+  sb.setAttribute('aria-hidden', 'true');
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  if (sb.classList.contains('hidden')) openSidebar(); else closeSidebar();
+}
+
+// Close sidebar on ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const sb = document.getElementById('sidebar');
+    if (sb && !sb.classList.contains('hidden')) closeSidebar();
+  }
+});
 
 ensureMonthlyRollover();
 render();

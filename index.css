@@ -29,11 +29,12 @@ body {
     radial-gradient(1200px 500px at 8% -20%, rgba(14, 165, 233, 0.35), transparent 60%),
     radial-gradient(900px 400px at 100% 0%, rgba(34, 197, 94, 0.2), transparent 55%),
     linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
-  padding: 24px 14px 24px;
+  padding: 24px 14px 96px;
 }
 
 .app {
-  max-width: 75%;
+  width: min(1120px, 100%);
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   border-radius: 24px;
@@ -44,6 +45,7 @@ body {
 }
 
 .app-page {
+  width: 100%;
   animation: page-in 280ms ease-out;
 }
 
@@ -62,6 +64,129 @@ body {
 .header {
   display: none; /* kept for backward compatibility, hide original header */
 }
+
+/* Top app header */
+.top-header {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 14px;
+  width: min(1120px, calc(100% - 28px));
+  height: 56px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.08);
+  z-index: 1100;
+  justify-content: space-between;
+}
+
+.top-header .header-left,
+.top-header .header-right {
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-header .header-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+}
+
+.hamburger {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  box-shadow: 0 16px 60px rgba(2,6,23,0.18);
+  transform: translateX(-110%);
+  transition: transform 260ms ease;
+  z-index: 1200;
+  padding: 18px 12px;
+}
+
+.sidebar:not(.hidden) {
+  transform: translateX(0);
+}
+
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-close {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sidebar-nav a {
+  display: block;
+  padding: 10px 12px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(14,165,233,0.06);
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1150;
+  transition: opacity 200ms ease;
+}
+
+.sidebar-overlay.hidden { display: none; }
+
+.sidebar.hidden { pointer-events: none; }
+
+/* make room for fixed header */
+.app { margin-top: 64px; }
 
 /* E-WALLET HEADER */
 .wallet-card {
@@ -489,6 +614,14 @@ button {
   background: #e2e8f0;
 }
 
+.history-list li,
+.wallet-card,
+.detail,
+.modal-content,
+.floating-nav {
+  width: 100%;
+}
+
 .hidden {
   display: none !important;
 }
@@ -531,9 +664,8 @@ button {
   background: var(--surface);
   border-radius: var(--radius-lg);
   padding: 24px;
-  max-width: 70%;
-  width: 100%;
-  grid-template-columns: 3fr;
+  width: min(680px, calc(100vw - 24px));
+  max-width: 680px;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
   animation: content-in 260ms ease-out;
 }
@@ -644,9 +776,11 @@ button {
 
 /* FLOATING NAV */
 .floating-nav {
-  position: relative;
-  width: min(75%, 1200px);
-  margin: 14px auto 0;
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100% - 24px));
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(14, 165, 233, 0.25);
   border-radius: 14px;
@@ -656,6 +790,7 @@ button {
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
   padding: 8px;
+  z-index: 1000;
 }
 
 .nav-btn {
@@ -738,20 +873,174 @@ button {
   filter: brightness(1.03);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
   body {
-    padding: 12px;
+    padding: 0 0 96px;
   }
 
   .app {
-    padding: 14px;
-    border-radius: 18px;
+    width: 100%;
     max-width: 100%;
+    min-height: 100svh;
+    padding: 16px 16px 12px;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-page {
+    width: 100%;
+    flex: 1;
+  }
+
+  .wallet-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .category-list {
+    grid-template-columns: 1fr;
   }
 
   .floating-nav {
     width: calc(100% - 24px);
-    margin-top: 10px;
+  }
+
+  .detail-header {
+    flex-wrap: wrap;
+  }
+
+  .detail-header-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .detail-header button {
+    width: auto;
+    min-width: 88px;
+  }
+
+  .modal-content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    width: 100%;
+    min-height: 100svh;
+    padding: 16px 16px 12px;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-page {
+    flex: 1;
+  }
+
+  .wallet-title,
+  .recap-title {
+    font-size: 13px;
+  }
+
+  .wallet-balance-amount {
+    font-size: 20px;
+  }
+
+  .wallet-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .category-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .card-container {
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .card {
+    min-height: 96px;
+    padding: 12px;
+  }
+
+  .detail-header {
+    align-items: stretch;
+  }
+
+  .detail-header > button {
+    width: 56px;
+    min-width: 56px;
+  }
+
+  .detail-header h2 {
+    font-size: 18px;
+  }
+
+  .detail-header-actions {
+    gap: 6px;
+  }
+
+  .detail-edit-btn {
+    font-size: 14px;
+    padding: 6px 8px;
+  }
+
+  .modal-content {
+    padding: 18px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .recap-grid,
+  .recap-year-row {
+    grid-template-columns: 1fr;
+  }
+
+  .floating-nav {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    padding: 6px;
+    width: calc(100% - 24px);
+  }
+
+  .nav-btn {
+    font-size: 12px;
+    padding: 10px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0 0 96px;
+  }
+
+  .app {
+    width: 100%;
+    min-height: 100svh;
+    padding: 12px 12px 10px;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app-page {
+    flex: 1;
+  }
+
+  .floating-nav {
+    width: calc(100% - 16px);
+    bottom: 8px;
   }
 
   .header h1 {
@@ -764,10 +1053,37 @@ button {
 
   .category-list {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .wallet-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .input-group {
+    gap: 8px;
+  }
+
+  .action-btns {
+    flex-direction: column;
+  }
+
+  .action-btns button {
+    font-size: 16px;
+    padding: 11px 12px;
+  }
+
+  .detail-header button {
+    font-size: 9px;
   }
 
   .card {
-    min-height: 120px;
+    min-height: 88px;
+    padding: 10px;
+  }
+
+  .card-container {
+    aspect-ratio: auto;
   }
 
   .recap-grid {
