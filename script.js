@@ -244,26 +244,23 @@ function render() {
 }
 
 function getFinancialSummary() {
-  let income = 0;
   let expense = 0;
+
+  // Pemasukan utama diambil dari total yang diinput user.
+  const income = getManualTotal();
 
   for (let key in data) {
     for (let item of data[key].history) {
-      if (item.type === "income") {
-        income += item.amount;
-      } else if (item.type === "expense") {
+      if (item.type === "expense") {
         expense += item.amount;
       }
     }
   }
 
-  const manualTotal = getManualTotal();
-  const fallbackTotal = Object.values(data).reduce((sum, cat) => sum + (cat.saldo || 0), 0);
-
   return {
     income,
     expense,
-    total: manualTotal !== null ? manualTotal : fallbackTotal
+    total: income - expense
   };
 }
 
@@ -480,13 +477,21 @@ function getTotalExpenses() {
 
 function getManualTotal() {
   const v = localStorage.getItem('total_keuangan');
-  if (!v) return null;
+  if (!v) return 0;
   const n = parseInt(v);
-  return isNaN(n) ? null : n;
+  return isNaN(n) ? 0 : n;
+}
+
+function ensureManualTotalInitialized() {
+  const stored = localStorage.getItem('total_keuangan');
+
+  if (stored === null) {
+    localStorage.setItem('total_keuangan', '0');
+  }
 }
 
 function openEditTotalModal() {
-  const currentTotal = getManualTotal() || 0;
+  const currentTotal = getManualTotal();
   document.getElementById('editTotalInput').value = currentTotal;
   document.getElementById('editTotalNoteInput').value = '';
   document.getElementById('editTotalModal').classList.remove('hidden');
@@ -507,10 +512,10 @@ function submitEditTotal() {
     return;
   }
 
-  const oldTotal = getManualTotal() || 0;
+  const oldTotal = getManualTotal();
   const change = amount - oldTotal;
 
-  // store new total
+  // store new total (berfungsi sebagai nilai pemasukan utama)
   localStorage.setItem('total_keuangan', String(amount));
 
   // add to history
@@ -961,6 +966,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 ensureMonthlyRollover();
+ensureManualTotalInitialized();
 render();
 switchMainPage('home');
 
