@@ -211,6 +211,20 @@
     </div>
   </div>
 
+  <!-- MODAL KONFIRMASI HAPUS KATEGORI -->
+  <div id="deleteCategoryModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-overlay" onclick="closeDeleteCategoryModal()"></div>
+    <div class="modal-content delete-confirm-content">
+      <div class="delete-confirm-badge">Hapus Kategori</div>
+      <h2 id="deleteCategoryTitle">Hapus kategori?</h2>
+      <p id="deleteCategoryDesc">Tindakan ini akan menghapus kategori dan seluruh riwayatnya.</p>
+      <div class="delete-confirm-actions">
+        <button class="btn-cancel" onclick="closeDeleteCategoryModal()">Batal</button>
+        <button class="btn-danger" onclick="confirmDeleteCategory()">Hapus</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- FLOATING MENU BAWAH -->

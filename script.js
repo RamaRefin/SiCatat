@@ -752,21 +752,57 @@ function editCategoryBalance() {
 }
 
 function deleteCategory() {
-  if (confirm("Apakah Anda yakin ingin menghapus kategori ini?")) {
-    delete data[currentCategory];
-    save();
-    back();
-    render();
-  }
+  openDeleteCategoryModal(currentCategory);
 }
 
 function deleteCategoryFromHome(key, event) {
   event.stopPropagation();
-  if (confirm("Apakah Anda yakin ingin menghapus kategori ini?")) {
-    delete data[key];
-    save();
-    render();
+  openDeleteCategoryModal(key);
+}
+
+function openDeleteCategoryModal(key) {
+  const modal = document.getElementById('deleteCategoryModal');
+  const title = document.getElementById('deleteCategoryTitle');
+  const desc = document.getElementById('deleteCategoryDesc');
+
+  if (!modal || !title || !desc || !key || !data[key]) return;
+
+  modal.dataset.categoryKey = key;
+  title.textContent = `Hapus ${data[key].name}?`;
+  desc.textContent = 'Kategori ini akan dihapus beserta saldo dan seluruh riwayat transaksinya.';
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDeleteCategoryModal() {
+  const modal = document.getElementById('deleteCategoryModal');
+  if (!modal) return;
+
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  delete modal.dataset.categoryKey;
+}
+
+function confirmDeleteCategory() {
+  const modal = document.getElementById('deleteCategoryModal');
+  const key = modal && modal.dataset.categoryKey;
+
+  if (!key || !data[key]) {
+    closeDeleteCategoryModal();
+    return;
   }
+
+  const deletingCurrentCategory = currentCategory === key;
+
+  delete data[key];
+  save();
+
+  if (deletingCurrentCategory) {
+    back();
+  }
+
+  render();
+  closeDeleteCategoryModal();
 }
 
 // Sidebar controls (header hamburger)
@@ -858,9 +894,15 @@ function openSidebarPopup(type) {
   popup.setAttribute('aria-hidden', 'false');
 }
 
-// Close sidebar on ESC
+// Close popups on ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const deleteModal = document.getElementById('deleteCategoryModal');
+    if (deleteModal && !deleteModal.classList.contains('hidden')) {
+      closeDeleteCategoryModal();
+      return;
+    }
+
     const popup = document.getElementById('sidebarPopupModal');
     if (popup && !popup.classList.contains('hidden')) {
       closeSidebarPopup();
