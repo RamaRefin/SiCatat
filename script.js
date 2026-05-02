@@ -248,26 +248,22 @@ function getFinancialSummary() {
   let expense = 0;
 
   for (let key in data) {
-    let categoryIncome = 0;
-    let categoryExpense = 0;
-
     for (let item of data[key].history) {
       if (item.type === "income") {
-        categoryIncome += item.amount;
+        income += item.amount;
       } else if (item.type === "expense") {
-        categoryExpense += item.amount;
+        expense += item.amount;
       }
     }
-
-    const initialBalance = data[key].saldo - categoryIncome + categoryExpense;
-    income += initialBalance + categoryIncome;
-    expense += categoryExpense;
   }
+
+  const manualTotal = getManualTotal();
+  const fallbackTotal = Object.values(data).reduce((sum, cat) => sum + (cat.saldo || 0), 0);
 
   return {
     income,
     expense,
-    total: income - expense
+    total: manualTotal !== null ? manualTotal : fallbackTotal
   };
 }
 
