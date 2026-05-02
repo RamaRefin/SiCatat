@@ -225,6 +225,19 @@
     </div>
   </div>
 
+  <div id="deleteTransactionModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-overlay" onclick="closeDeleteTransactionModal()"></div>
+    <div class="modal-content delete-confirm-content">
+      <div class="delete-confirm-badge">Hapus Transaksi</div>
+      <h2>Hapus transaksi?</h2>
+      <p>Transaksi ini akan dihapus dan tidak dapat dipulihkan.</p>
+      <div class="delete-confirm-actions">
+        <button class="btn-cancel" onclick="closeDeleteTransactionModal()">Batal</button>
+        <button class="btn-danger" onclick="confirmDeleteTransaction()">Hapus</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- FLOATING MENU BAWAH -->

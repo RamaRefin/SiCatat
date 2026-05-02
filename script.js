@@ -327,7 +327,7 @@ function updateDetail() {
         <br><small>${item.note || "-"}</small>
         <br><small style="color: var(--muted); font-size: 11px;">📅 ${item.timestamp || ""}</small>
         <br>
-        <button onclick="deleteTransaction(${index})">🗑️</button>
+        <button onclick="openDeleteTransactionModal(${index})">🗑️</button>
       </li>
     `;
   });
@@ -805,6 +805,50 @@ function confirmDeleteCategory() {
   closeDeleteCategoryModal();
 }
 
+// Transaction delete confirmation
+function openDeleteTransactionModal(index) {
+  const modal = document.getElementById('deleteTransactionModal');
+  if (!modal) return;
+
+  modal.dataset.transactionIndex = index;
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeDeleteTransactionModal() {
+  const modal = document.getElementById('deleteTransactionModal');
+  if (!modal) return;
+
+  modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
+  delete modal.dataset.transactionIndex;
+}
+
+function confirmDeleteTransaction() {
+  const modal = document.getElementById('deleteTransactionModal');
+  const index = modal && modal.dataset.transactionIndex;
+
+  if (index === undefined || !data[currentCategory]) {
+    closeDeleteTransactionModal();
+    return;
+  }
+
+  const item = data[currentCategory].history[index];
+
+  if (item.type === "income") {
+    data[currentCategory].saldo -= item.amount;
+  } else {
+    data[currentCategory].saldo += item.amount;
+  }
+
+  data[currentCategory].history.splice(index, 1);
+
+  save();
+  updateDetail();
+  render();
+  closeDeleteTransactionModal();
+}
+
 // Sidebar controls (header hamburger)
 function openSidebar() {
   const sb = document.getElementById('sidebar');
@@ -897,6 +941,12 @@ function openSidebarPopup(type) {
 // Close popups on ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const deleteTransactionModal = document.getElementById('deleteTransactionModal');
+    if (deleteTransactionModal && !deleteTransactionModal.classList.contains('hidden')) {
+      closeDeleteTransactionModal();
+      return;
+    }
+
     const deleteModal = document.getElementById('deleteCategoryModal');
     if (deleteModal && !deleteModal.classList.contains('hidden')) {
       closeDeleteCategoryModal();
