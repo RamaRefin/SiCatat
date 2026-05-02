@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Keuangan Pribadi</title>
   <link rel="stylesheet" href="index.css">
 </head>
@@ -26,13 +27,26 @@
       <a href="#" onclick="toggleSidebar(); switchMainPage('recap'); return false;">🗓️ Rekap</a>
       <a href="#" onclick="toggleSidebar(); switchMainPage('history'); return false;">📋 Riwayat</a>
       <hr>
-      <a href="#" onclick="toggleSidebar(); alert('Login placeholder'); return false;">🔐 Login</a>
-      <a href="#" onclick="toggleSidebar(); alert('Pengaturan placeholder'); return false;">⚙️ Pengaturan</a>
-      <a href="#" onclick="toggleSidebar(); alert('Tentang: Aplikasi Catatan Uang'); return false;">ℹ️ Tentang</a>
+      <a href="#" onclick="openSidebarPopup('settings'); return false;">⚙️ Pengaturan</a>
+      <a href="#" onclick="openSidebarPopup('about'); return false;">ℹ️ Tentang</a>
     </nav>
   </div>
 </aside>
 <div id="sidebarOverlay" class="sidebar-overlay hidden" onclick="toggleSidebar()"></div>
+
+<div id="sidebarPopupModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-overlay" onclick="closeSidebarPopup()"></div>
+  <div class="modal-content sidebar-popup-content">
+    <div class="sidebar-popup-top">
+      <div>
+        <div class="sidebar-popup-kicker" id="sidebarPopupKicker">Popup</div>
+        <h2 id="sidebarPopupTitle">Popup</h2>
+      </div>
+      <button class="sidebar-popup-close" aria-label="Tutup popup" onclick="closeSidebarPopup()">✕</button>
+    </div>
+    <div id="sidebarPopupBody"></div>
+  </div>
+</div>
 
 <div class="app">
 
@@ -201,9 +215,9 @@
 
 <!-- FLOATING MENU BAWAH -->
 <nav class="floating-nav" aria-label="Navigasi utama">
-  <button id="navHomeBtn" class="nav-btn active" onclick="switchMainPage('home')">🏠 Beranda</button>
-  <button id="navRecapBtn" class="nav-btn" onclick="switchMainPage('recap')">🗓️ Rekap</button>
-  <button id="navHistoryBtn" class="nav-btn" onclick="switchMainPage('history')">📋 Riwayat</button>
+  <button id="navHomeBtn" class="nav-btn active" data-icon="🏠" onclick="switchMainPage('home')">🏠 Beranda</button>
+  <button id="navRecapBtn" class="nav-btn" data-icon="🗓️" onclick="switchMainPage('recap')">🗓️ Rekap</button>
+  <button id="navHistoryBtn" class="nav-btn" data-icon="📋" onclick="switchMainPage('history')">📋 Riwayat</button>
 </nav>
 
 <script src="script.js"></script>

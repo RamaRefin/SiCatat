@@ -794,9 +794,79 @@ function toggleSidebar() {
   if (sb.classList.contains('hidden')) openSidebar(); else closeSidebar();
 }
 
+function closeSidebarPopup() {
+  const popup = document.getElementById('sidebarPopupModal');
+  if (!popup) return;
+  popup.classList.add('hidden');
+  popup.setAttribute('aria-hidden', 'true');
+}
+
+function openSidebarPopup(type) {
+  const popup = document.getElementById('sidebarPopupModal');
+  const kicker = document.getElementById('sidebarPopupKicker');
+  const title = document.getElementById('sidebarPopupTitle');
+  const body = document.getElementById('sidebarPopupBody');
+
+  if (!popup || !kicker || !title || !body) return;
+
+  closeSidebar();
+
+  const configs = {
+    settings: {
+      kicker: 'Preferensi',
+      title: 'Pengaturan',
+      body: `
+        <p class="sidebar-popup-desc">Atur pengalaman aplikasi agar lebih nyaman dipakai harian.</p>
+        <div class="sidebar-popup-card sidebar-popup-stack">
+          <label class="sidebar-toggle-row"><span>Mode hemat data</span><input type="checkbox" checked></label>
+          <label class="sidebar-toggle-row"><span>Notifikasi ringkasan</span><input type="checkbox"></label>
+          <label class="sidebar-toggle-row"><span>Format rupiah otomatis</span><input type="checkbox" checked></label>
+          <div class="sidebar-popup-actions">
+            <button class="btn-submit" type="button" onclick="closeSidebarPopup()">Simpan</button>
+            <button class="btn-cancel" type="button" onclick="closeSidebarPopup()">Tutup</button>
+          </div>
+        </div>
+      `
+    },
+    about: {
+      kicker: 'Tentang',
+      title: 'Tentang SiCatat',
+      body: `
+        <div class="sidebar-popup-card sidebar-popup-about">
+          <div class="sidebar-about-logo">SC</div>
+          <p class="sidebar-popup-desc">SiCatat adalah aplikasi catatan keuangan pribadi untuk memantau saldo, rekap, dan riwayat perubahan.</p>
+          <div class="sidebar-about-meta">
+            <span>Versi 1.0</span>
+            <span>Dibuat untuk pencatatan sederhana</span>
+            <br>
+            <span> Develop by @ramdfin </span>
+          </div>
+          <div class="sidebar-popup-actions">
+            <button class="btn-submit" type="button" onclick="closeSidebarPopup()">Tutup</button>
+          </div>
+        </div>
+      `
+    }
+  };
+
+  const config = configs[type] || configs.about;
+
+  kicker.textContent = config.kicker;
+  title.textContent = config.title;
+  body.innerHTML = config.body;
+  popup.classList.remove('hidden');
+  popup.setAttribute('aria-hidden', 'false');
+}
+
 // Close sidebar on ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const popup = document.getElementById('sidebarPopupModal');
+    if (popup && !popup.classList.contains('hidden')) {
+      closeSidebarPopup();
+      return;
+    }
+
     const sb = document.getElementById('sidebar');
     if (sb && !sb.classList.contains('hidden')) closeSidebar();
   }
