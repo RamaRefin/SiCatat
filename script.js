@@ -6,9 +6,198 @@ let data = JSON.parse(localStorage.getItem("keuangan")) || {
 };
 
 let currentCategory = null;
+let currentMainPage = 'home';
 
 function save() {
   localStorage.setItem("keuangan", JSON.stringify(data));
+}
+
+function setTopWalletActionsVisible(visible) {
+  const editBtn = document.getElementById("editTotalBtn");
+
+  if (editBtn) editBtn.style.display = visible ? "inline-block" : "none";
+}
+
+function switchMainPage(page) {
+  const homePage = document.getElementById('homePage');
+  const recapPage = document.getElementById('recapPage');
+  const historyPage = document.getElementById('historyPage');
+  const navHomeBtn = document.getElementById('navHomeBtn');
+  const navRecapBtn = document.getElementById('navRecapBtn');
+  const navHistoryBtn = document.getElementById('navHistoryBtn');
+
+  currentMainPage = page;
+
+  const leaveDetailMode = () => {
+    document.getElementById("detailPage").classList.add("hidden");
+    document.getElementById("categories").style.display = "grid";
+    document.getElementById("total").style.display = "block";
+    currentCategory = null;
+  };
+
+  if (page === 'recap') {
+    homePage.classList.add('hidden');
+    recapPage.classList.remove('hidden');
+    historyPage.classList.add('hidden');
+    navHomeBtn.classList.remove('active');
+    navRecapBtn.classList.add('active');
+    navHistoryBtn.classList.remove('active');
+
+    // Close detail state when user leaves Home page
+    leaveDetailMode();
+
+    setTopWalletActionsVisible(false);
+    renderRecapLists();
+    return;
+  }
+
+  if (page === 'history') {
+    homePage.classList.add('hidden');
+    recapPage.classList.add('hidden');
+    historyPage.classList.remove('hidden');
+    navHomeBtn.classList.remove('active');
+    navRecapBtn.classList.remove('active');
+    navHistoryBtn.classList.add('active');
+
+    leaveDetailMode();
+    setTopWalletActionsVisible(false);
+    displayHistory();
+    return;
+  }
+
+  recapPage.classList.add('hidden');
+  historyPage.classList.add('hidden');
+  homePage.classList.remove('hidden');
+  navRecapBtn.classList.remove('active');
+  navHistoryBtn.classList.remove('active');
+  navHomeBtn.classList.add('active');
+  setTopWalletActionsVisible(currentCategory === null);
+}
+
+function getCurrentPeriodKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+function getPeriodLabel(periodKey) {
+  const [year, month] = periodKey.split('-');
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+}
+
+function getMonthlyRecaps() {
+  const raw = localStorage.getItem('monthly_recaps');
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveMonthlyRecaps(recaps) {
+  localStorage.setItem('monthly_recaps', JSON.stringify(recaps));
+}
+
+function getRecapMeta() {
+  const raw = localStorage.getItem('recap_meta');
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveRecapMeta(meta) {
+  localStorage.setItem('recap_meta', JSON.stringify(meta));
+}
+
+function buildMonthlySnapshot(periodKey) {
+  const summary = getFinancialSummary();
+  const categories = [];
+
+  for (let key in data) {
+    let income = 0;
+    let expense = 0;
+
+    for (let item of data[key].history) {
+      if (item.type === 'income') income += item.amount;
+      if (item.type === 'expense') expense += item.amount;
+    }
+
+    categories.push({
+      key,
+      name: data[key].name,
+      saldo: data[key].saldo,
+      income,
+      expense,
+      transactionCount: data[key].history.length
+    });
+  }
+
+  return {
+    period: periodKey,
+    label: getPeriodLabel(periodKey),
+    totalSaldo: summary.total,
+    totalIncome: summary.income,
+    totalExpense: summary.expense,
+    categories,
+    createdAt: new Date().toLocaleString('id-ID')
+  };
+}
+
+function upsertMonthlyRecap(snapshot) {
+  const recaps = getMonthlyRecaps();
+  const idx = recaps.findIndex(r => r.period === snapshot.period);
+
+  if (idx >= 0) {
+    recaps[idx] = snapshot;
+  } else {
+    recaps.push(snapshot);
+  }
+
+  saveMonthlyRecaps(recaps);
+}
+
+function resetAllCategoriesForNewMonth() {
+  for (let key in data) {
+    data[key].saldo = 0;
+    data[key].history = [];
+  }
+
+  localStorage.setItem('total_keuangan', '0');
+}
+
+function ensureMonthlyRollover() {
+  const nowPeriod = getCurrentPeriodKey();
+  const meta = getRecapMeta();
+
+  if (!meta || !meta.activePeriod) {
+    saveRecapMeta({ activePeriod: nowPeriod, lastCheckedAt: new Date().toISOString() });
+    return;
+  }
+
+  if (meta.activePeriod === nowPeriod) {
+    saveRecapMeta({ ...meta, lastCheckedAt: new Date().toISOString() });
+    return;
+  }
+
+  const snapshot = buildMonthlySnapshot(meta.activePeriod);
+  upsertMonthlyRecap(snapshot);
+
+  resetAllCategoriesForNewMonth();
+  save();
+
+  saveRecapMeta({
+    activePeriod: nowPeriod,
+    lastCheckedAt: new Date().toISOString(),
+    lastResetAt: new Date().toLocaleString('id-ID')
+  });
 }
 
 function render() {
@@ -92,11 +281,13 @@ function formatCurrency(num) {
 }
 
 function openCategory(category) {
+  switchMainPage('home');
   currentCategory = category;
 
   document.getElementById("detailPage").classList.remove("hidden");
   document.getElementById("categories").style.display = "none";
   document.getElementById("total").style.display = "none";
+  setTopWalletActionsVisible(false);
 
   updateDetail();
 }
@@ -116,6 +307,16 @@ function updateDetail() {
   let historyList = document.getElementById("history");
   historyList.innerHTML = "";
 
+  // Retrofill missing timestamps for existing category history entries
+  let _changed = false;
+  cat.history.forEach(it => {
+    if (!it.timestamp) {
+      it.timestamp = new Date().toLocaleString('id-ID');
+      _changed = true;
+    }
+  });
+  if (_changed) save();
+
   cat.history.forEach((item, index) => {
     const typeLabel = item.type === "income" ? "+ Rp " : "- Rp ";
     const typeColor = item.type === "income" ? "#22c55e" : "#ef4444";
@@ -124,6 +325,7 @@ function updateDetail() {
       <li style="border-left: 3px solid ${typeColor}; padding-left: 12px;">
         <strong style="color: ${typeColor};">${typeLabel}${formatCurrency(item.amount)}</strong>
         <br><small>${item.note || "-"}</small>
+        <br><small style="color: var(--muted); font-size: 11px;">📅 ${item.timestamp || ""}</small>
         <br>
         <button onclick="deleteTransaction(${index})">🗑️</button>
       </li>
@@ -157,7 +359,8 @@ function addIncome() {
   data[currentCategory].history.push({
     type: "income",
     amount,
-    note
+    note,
+    timestamp: new Date().toLocaleString('id-ID')
   });
 
   clearInput();
@@ -176,7 +379,8 @@ function addExpense() {
   data[currentCategory].history.push({
     type: "expense",
     amount,
-    note
+    note,
+    timestamp: new Date().toLocaleString('id-ID')
   });
 
   clearInput();
@@ -328,12 +532,86 @@ function submitEditTotal() {
 }
 
 function openHistoryModal() {
-  document.getElementById('historyModal').classList.remove('hidden');
-  displayHistory();
+  switchMainPage('history');
 }
 
 function closeHistoryModal() {
-  document.getElementById('historyModal').classList.add('hidden');
+  switchMainPage('home');
+}
+
+function renderRecapLists() {
+  const monthlyEl = document.getElementById('monthlyRecapList');
+  const yearlyEl = document.getElementById('yearlyRecapList');
+  const recaps = getMonthlyRecaps().sort((a, b) => b.period.localeCompare(a.period));
+
+  if (recaps.length === 0) {
+    monthlyEl.innerHTML = '<li style="color: var(--muted); text-align: center; padding: 20px;">Belum ada rekap bulanan.</li>';
+    yearlyEl.innerHTML = '<li style="color: var(--muted); text-align: center; padding: 20px;">Belum ada rekap tahunan.</li>';
+    return;
+  }
+
+  monthlyEl.innerHTML = '';
+  recaps.forEach((recap) => {
+    const categoryRows = recap.categories.map((cat) => {
+      return `<div class="recap-cat-row"><span>${cat.name}</span><span>Rp ${formatCurrency(cat.saldo)}</span></div>`;
+    }).join('');
+
+    monthlyEl.innerHTML += `
+      <li>
+        <div class="recap-month-header">
+          <span class="recap-month-title">${recap.label}</span>
+          <span class="recap-pill">${recap.period}</span>
+        </div>
+
+        <div class="recap-grid">
+          <div class="recap-item"><span class="label">Pemasukan</span><span class="value">Rp ${formatCurrency(recap.totalIncome)}</span></div>
+          <div class="recap-item"><span class="label">Pengeluaran</span><span class="value">Rp ${formatCurrency(recap.totalExpense)}</span></div>
+          <div class="recap-item"><span class="label">Saldo Akhir</span><span class="value">Rp ${formatCurrency(recap.totalSaldo)}</span></div>
+        </div>
+
+        <div class="recap-categories">${categoryRows}</div>
+      </li>
+    `;
+  });
+
+  const yearlyMap = {};
+  recaps.forEach((recap) => {
+    const year = recap.period.slice(0, 4);
+
+    if (!yearlyMap[year]) {
+      yearlyMap[year] = {
+        months: 0,
+        income: 0,
+        expense: 0,
+        endingSaldoTotal: 0
+      };
+    }
+
+    yearlyMap[year].months += 1;
+    yearlyMap[year].income += recap.totalIncome || 0;
+    yearlyMap[year].expense += recap.totalExpense || 0;
+    yearlyMap[year].endingSaldoTotal += recap.totalSaldo || 0;
+  });
+
+  const years = Object.keys(yearlyMap).sort((a, b) => b.localeCompare(a));
+  yearlyEl.innerHTML = '';
+
+  years.forEach((year) => {
+    const item = yearlyMap[year];
+    yearlyEl.innerHTML += `
+      <li>
+        <div class="recap-month-header">
+          <span class="recap-month-title">${year}</span>
+          <span class="recap-pill">${item.months} bulan</span>
+        </div>
+        <div class="recap-year-row">
+          <span>Total Pemasukan: Rp ${formatCurrency(item.income)}</span>
+          <span>Total Pengeluaran: Rp ${formatCurrency(item.expense)}</span>
+          <span>Akumulasi Saldo Akhir: Rp ${formatCurrency(item.endingSaldoTotal)}</span>
+        </div>
+      </li>
+    `;
+  });
 }
 
 function getHistory() {
@@ -350,6 +628,16 @@ function saveHistory(history) {
   localStorage.setItem('total_history', JSON.stringify(history));
 }
 
+function deleteHistoryItem(index) {
+  const history = getHistory();
+  
+  if (index >= 0 && index < history.length) {
+    history.splice(index, 1);
+    saveHistory(history);
+    displayHistory();
+  }
+}
+
 function displayHistory() {
   const history = getHistory();
   const historyList = document.getElementById('historyList');
@@ -360,7 +648,17 @@ function displayHistory() {
   }
 
   historyList.innerHTML = '';
-  history.forEach((item, index) => {
+  // Retrofill missing timestamps for total history entries
+  let __changed = false;
+  history.forEach(h => {
+    if (!h.timestamp) {
+      h.timestamp = new Date().toLocaleString('id-ID');
+      __changed = true;
+    }
+  });
+  if (__changed) saveHistory(history);
+
+  history.forEach((item) => {
     const typeLabel = item.type === 'pemasukan' ? '+ Pemasukan' : '- Pengurangan';
     const typeColor = item.type === 'pemasukan' ? '#22c55e' : '#ef4444';
     
@@ -369,7 +667,8 @@ function displayHistory() {
         <strong style="color: ${typeColor};">${typeLabel}</strong><br>
         <span style="font-size: 16px; font-weight: 700;">Rp ${formatCurrency(item.amount)}</span><br>
         <small style="color: var(--muted);">${item.note || '-'}</small><br>
-        <small style="color: var(--muted); font-size: 10px;">${item.timestamp}</small>
+        <small style="color: var(--muted); font-size: 11px;">📅 ${item.timestamp || ""}</small><br>
+        <button onclick="deleteHistoryItem(${index})" style="margin-top: 6px;">🗑️</button>
       </li>
     `;
   });
@@ -385,6 +684,7 @@ function back() {
 
   document.getElementById("categories").style.display = "grid";
   document.getElementById("total").style.display = "block";
+  setTopWalletActionsVisible(true);
 
   currentCategory = null; // 🔥 penting biar reset state
 }
@@ -469,9 +769,9 @@ function deleteCategoryFromHome(key, event) {
   }
 }
 
-
-
+ensureMonthlyRollover();
 render();
+switchMainPage('home');
 
 // Allow Enter key to submit form
 document.addEventListener('keypress', (e) => {

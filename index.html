@@ -9,6 +9,8 @@
 
 <div class="app">
 
+  <div id="homePage" class="app-page">
+
   <!-- KEUANGAN (ringkasan) -->
   <div class="wallet-card">
     <div class="wallet-top">
@@ -19,7 +21,6 @@
           <div class="wallet-balance-row">
             <div id="total" class="wallet-balance-amount">Rp 0</div>
             <button id="editTotalBtn" class="edit-icon-btn" onclick="openEditTotalModal()">✏️</button>
-            <button id="historyBtn" class="history-icon-btn" onclick="openHistoryModal()">📋</button>
           </div>
         </div>
       </div>
@@ -61,18 +62,6 @@
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeEditTotalModal()">Batal</button>
         <button class="btn-submit" onclick="submitEditTotal()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL RIWAYAT TOTAL SALDO -->
-  <div id="historyModal" class="modal hidden">
-    <div class="modal-overlay" onclick="closeHistoryModal()"></div>
-    <div class="modal-content">
-      <h2>Riwayat Perubahan Saldo</h2>
-      <ul id="historyList" class="history-list"></ul>
-      <div class="modal-actions" style="margin-top: 16px;">
-        <button class="btn-cancel" onclick="closeHistoryModal()">Tutup</button>
       </div>
     </div>
   </div>
@@ -123,6 +112,32 @@
     <ul id="history" class="history-list"></ul>
   </div>
 
+  </div>
+
+  <!-- HALAMAN REKAP -->
+  <div id="recapPage" class="app-page hidden">
+    <div class="wallet-card">
+      <div class="wallet-title">Rekap Keuangan</div>
+      <p class="wallet-balance-label">Data bulanan & tahunan tersimpan otomatis saat ganti bulan.</p>
+    </div>
+
+    <h3 class="recap-title">Bulanan</h3>
+    <ul id="monthlyRecapList" class="history-list recap-list"></ul>
+
+    <h3 class="recap-title">Tahunan</h3>
+    <ul id="yearlyRecapList" class="history-list recap-list"></ul>
+  </div>
+
+  <!-- HALAMAN RIWAYAT -->
+  <div id="historyPage" class="app-page hidden">
+    <div class="wallet-card">
+      <div class="wallet-title">Riwayat Perubahan Saldo</div>
+      <p class="wallet-balance-label">Semua perubahan total saldo tersimpan otomatis.</p>
+    </div>
+
+    <ul id="historyList" class="history-list recap-list"></ul>
+  </div>
+
   <!-- MODAL EDIT NAMA KATEGORI -->
   <div id="editNameModal" class="modal hidden">
     <div class="modal-overlay" onclick="closeEditNameModal()"></div>
@@ -156,6 +171,13 @@
   </div>
 
 </div>
+
+<!-- FLOATING MENU BAWAH -->
+<nav class="floating-nav" aria-label="Navigasi utama">
+  <button id="navHomeBtn" class="nav-btn active" onclick="switchMainPage('home')">🏠 Beranda</button>
+  <button id="navRecapBtn" class="nav-btn" onclick="switchMainPage('recap')">🗓️ Rekap</button>
+  <button id="navHistoryBtn" class="nav-btn" onclick="switchMainPage('history')">📋 Riwayat</button>
+</nav>
 
 <script src="script.js"></script>
 </body>

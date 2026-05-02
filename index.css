@@ -29,11 +29,11 @@ body {
     radial-gradient(1200px 500px at 8% -20%, rgba(14, 165, 233, 0.35), transparent 60%),
     radial-gradient(900px 400px at 100% 0%, rgba(34, 197, 94, 0.2), transparent 55%),
     linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
-  padding: 24px 14px;
+  padding: 24px 14px 24px;
 }
 
 .app {
-  max-width: 470px;
+  max-width: 75%;
   margin: 0 auto;
   padding: 20px;
   border-radius: 24px;
@@ -41,6 +41,10 @@ body {
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow);
   animation: page-in 420ms ease-out;
+}
+
+.app-page {
+  animation: page-in 280ms ease-out;
 }
 
 @keyframes page-in {
@@ -199,15 +203,16 @@ body {
 
 /* CATEGORY */
 .category-list {
-  margin-top: 18px;
+  margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
 .card-container {
   position: relative;
-  min-height: 140px;
+  width: 100%;
+  min-height: 100px;
   border-radius: 10px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -260,8 +265,8 @@ body {
   position: absolute;
   right: 8px;
   top: 8px;
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 35x;
   border: none;
   border-radius: 8px;
   background: #fee2e2;
@@ -526,8 +531,9 @@ button {
   background: var(--surface);
   border-radius: var(--radius-lg);
   padding: 24px;
-  max-width: 380px;
-  width: 90%;
+  max-width: 70%;
+  width: 100%;
+  grid-template-columns: 3fr;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
   animation: content-in 260ms ease-out;
 }
@@ -548,6 +554,123 @@ button {
   font-size: 18px;
   font-weight: 800;
   color: var(--text);
+}
+
+.recap-modal-content {
+  max-width: 680px;
+}
+
+.recap-title {
+  margin: 8px 0 10px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0c4a6e;
+}
+
+.recap-list {
+  max-height: 220px;
+  overflow: auto;
+}
+
+.recap-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.recap-month-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.recap-pill {
+  font-size: 11px;
+  color: #0c4a6e;
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.recap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.recap-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px 8px;
+}
+
+.recap-item .label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.recap-item .value {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.recap-categories {
+  margin-top: 8px;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 8px;
+}
+
+.recap-cat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.recap-year-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 12px;
+}
+
+/* FLOATING NAV */
+.floating-nav {
+  position: relative;
+  width: min(75%, 1200px);
+  margin: 14px auto 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+}
+
+.nav-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 8px;
+}
+
+.nav-btn.active {
+  background: #e0f2fe;
+  border-color: #93c5fd;
+  color: #075985;
 }
 
 .form-group {
@@ -623,6 +746,12 @@ button {
   .app {
     padding: 14px;
     border-radius: 18px;
+    max-width: 100%;
+  }
+
+  .floating-nav {
+    width: calc(100% - 24px);
+    margin-top: 10px;
   }
 
   .header h1 {
@@ -639,5 +768,13 @@ button {
 
   .card {
     min-height: 120px;
+  }
+
+  .recap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recap-year-row {
+    grid-template-columns: 1fr;
   }
 }
